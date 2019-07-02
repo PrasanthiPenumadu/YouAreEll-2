@@ -6,18 +6,76 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-
+import YouAreEll.YouAreEll;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.IdController;
 import controllers.MessageController;
+import models.Id;
+import models.Message;
 
-// Simple Shell is a Console view for YouAreEll.
+// Simple Shell is a Console view for YouAreEll.YouAreEll.
 public class SimpleShell {
 
 
-    public static void prettyPrint(String output) {
+    public static void prettyPrintGet(String output) {
         // yep, make an effort to format things nicely, eh?
-        System.out.println(output);
+        ObjectMapper objectMapper = new ObjectMapper();
+       try { List<Id> newids;
+           newids = objectMapper.readValue(output, new TypeReference<List<Id>>(){});
+           for(Id id: newids) {System.out.println(id.toString());}}
+       catch (Exception e){e.printStackTrace();}
+
     }
+    public static void prettyPrintPost(String output) {
+        // yep, make an effort to format things nicely, eh?
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Id newid = objectMapper.readValue(output, Id.class);
+            System.out.println(newid.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void prettyPrintPut(String output) {
+        // yep, make an effort to format things nicely, eh?
+        ObjectMapper objectMapper = new ObjectMapper();
+        try { List<Id> newids;
+            newids = objectMapper.readValue(output, new TypeReference<List<Id>>(){});
+            for(Id id: newids) {
+                if(newids.contains(id))
+                System.out.println(id.toString());}}
+        catch (Exception e){e.printStackTrace();}
+
+    }
+        public static void prettyPrintGetMessage(String output) {
+            // yep, make an effort to format things nicely, eh?
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                List<Message> newmessages;
+
+                newmessages = objectMapper.readValue(output, new TypeReference<List<Message>>() {
+                });List<Message> newmessages1=  newmessages.subList(0, 19);
+                for (Message message : newmessages1) {
+                    System.out.println(message.toString());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        public static void prettyPrintPostMessage(String output) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                Message newmessage = objectMapper.readValue(output, Message.class);
+                System.out.println(newmessage.toString());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     public static void main(String[] args) throws java.io.IOException {
 
         YouAreEll webber = new YouAreEll(new MessageController(), new IdController());
@@ -66,16 +124,39 @@ public class SimpleShell {
                 // Specific Commands.
 
                 // ids
-                if (list.contains("ids")) {
+                if (list.contains("ids") && list.size()==1) {
                     String results = webber.get_ids();
-                    SimpleShell.prettyPrint(results);
+                    SimpleShell.prettyPrintGet(results);
                     continue;
                 }
 
+                if (list.contains("ids") && list.size()==3) {
+                    String results = webber.postuser_id(commands);
+                    SimpleShell.prettyPrintPost(results);
+                    continue;
+                }
+//                if (list.contains("ids") && list.size()==3) {
+//                    String results = webber.postuser_id(commands);
+//                    SimpleShell.prettyPrintPut(results);
+//                    continue;
+//                }
+
                 // messages
-                if (list.contains("messages")) {
+                if (list.contains("messages") && list.size()==1) {
                     String results = webber.get_messages();
-                    SimpleShell.prettyPrint(results);
+                    SimpleShell.prettyPrintGetMessage(results);
+                    continue;
+                }
+                // messages
+                if (list.contains("send") && list.size()>1) {
+                    String results = webber.post_Messages(commands);
+                    SimpleShell.prettyPrintPostMessage(results);
+                    continue;
+                }
+                if(list.contains("put")){
+                   // Id id;
+                    String results = webber.put_id(commands);
+                    SimpleShell.prettyPrintPost(results);
                     continue;
                 }
                 // you need to add a bunch more.
